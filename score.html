@@ -1,19 +1,150 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>JQuery Student Score Editor</title>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="data.js"></script>
-<style>body{font-family:Arial}table{border-collapse:collapse;width:70%}th,td{border:1px solid #000;padding:6px}.score{cursor:pointer}input.score-input{width:60px}</style>
-</head><body>
-<table><thead><tr><th>ID</th><th>Name</th><th>Midterm</th><th>Final</th><th>Total</th><th>Grade</th></tr></thead><tbody id="table-body"></tbody></table>
-<script>
-$(function(){
-function grade(t){if(t>=80)return"A";if(t>=70)return"B";if(t>=60)return"C";if(t>=50)return"D";return"F";}
-function render(){$("#table-body").empty();students.forEach((s,i)=>{$("#table-body").append(`<tr data-index="${i}"><td>${s.id}</td><td>${s.name}</td><td class="score" data-field="midterm">${s.midterm}</td><td class="score" data-field="final">${s.final}</td><td class="total">${+s.midterm+ +s.final}</td><td class="grade">${grade(+s.midterm+ +s.final)}</td></tr>`);});}
-function upd(r,i){let s=students[i],t=+s.midterm+ +s.final;r.find(".total").text(t);r.find(".grade").text(grade(t));}
-render();
-$("#table-body").on("click",".score",function(){let td=$(this);if(td.find("input").length)return;let old=td.text();td.data("old",old).html(`<input class='score-input' type='number' min='0' max='50' value='${old}'>`);let inp=td.find("input").focus().select();
-inp.on("keydown",function(e){if(e.key==="Escape"){td.text(old);}if(e.key==="Enter"){let v=parseInt(inp.val());if(isNaN(v)||v<0||v>50){alert("Score must be 0-50");td.text(old);return;}let row=td.closest("tr"),idx=row.data("index"),f=td.data("field");students[idx][f]=v;td.text(v);upd(row,idx);}});
-inp.on("blur",function(){if(td.find("input").length)td.text(old);});
-});
-});
-</script></body></html>
+<html xmlns:mso="urn:schemas-microsoft-com:office:office" xmlns:msdt="uuid:C2F41010-65B3-11d1-A29F-00AA00C14882">
+  <head>
+    <title>JQuery Assignment 1</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="data.js"></script>
+    <style>
+      body {
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid black;
+        border-radius: 4px; /* works here */
+        overflow: hidden;
+        width: 60%;
+      }
+
+      table tr th,
+      table tr td {
+        border: 1px solid black;
+        padding: 5px 4px;
+      }
+    </style>
+  
+<!--[if gte mso 9]><xml>
+<mso:CustomDocumentProperties>
+<mso:xd_Signature msdt:dt="string"></mso:xd_Signature>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor msdt:dt="string">SharePoint App</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Editor>
+<mso:Order msdt:dt="string">3200.00000000000</mso:Order>
+<mso:xd_ProgID msdt:dt="string"></mso:xd_ProgID>
+<mso:_ExtendedDescription msdt:dt="string"></mso:_ExtendedDescription>
+<mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author msdt:dt="string">SharePoint App</mso:display_urn_x003a_schemas-microsoft-com_x003a_office_x003a_office_x0023_Author>
+<mso:ComplianceAssetId msdt:dt="string"></mso:ComplianceAssetId>
+<mso:TemplateUrl msdt:dt="string"></mso:TemplateUrl>
+<mso:ReferenceId msdt:dt="string"></mso:ReferenceId>
+<mso:ContentTypeId msdt:dt="string">0x0101008F7E6A595F677440AEB4255EBF4A3A1B</mso:ContentTypeId>
+<mso:TriggerFlowInfo msdt:dt="string"></mso:TriggerFlowInfo>
+<mso:_SourceUrl msdt:dt="string"></mso:_SourceUrl>
+<mso:_SharedFileIndex msdt:dt="string"></mso:_SharedFileIndex>
+<mso:TaxCatchAll msdt:dt="string"></mso:TaxCatchAll>
+<mso:MediaServiceImageTags msdt:dt="string"></mso:MediaServiceImageTags>
+<mso:lcf76f155ced4ddcb4097134ff3c332f msdt:dt="string"></mso:lcf76f155ced4ddcb4097134ff3c332f>
+</mso:CustomDocumentProperties>
+</xml><![endif]-->
+</head>
+  <body>
+    <div>
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 5%">ID</th>
+            <th style="width: 30%">Name</th>
+            <th>Midterm</th>
+            <th>Final</th>
+            <th>Total</th>
+            <th>Grade</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+    <script>
+      $(document).ready(function () {
+        function getGrade(total) {
+          if (total >= 80) {return "A";}
+          else if (total >= 70) {return "B";}
+          else if (total >= 60) {return "C";}
+          else if (total >= 50) {return "D";}
+          return "F";
+        }
+
+        for (let i = 0; i < students.length; i++) {
+          const data = students[i];
+          const total = data.midterm + data.final;
+          const grade = getGrade(total);
+
+          const html = `
+            <tr>
+              <td>${data.id}</td>
+              <td>${data.name}</td>
+              <td class="midterm" id="mid-${i}">
+                ${data.midterm}
+                </td>
+
+              <td class="final" id = "final-${i}">
+                ${data.final}
+                </td>
+              <td id = "total-${i}">
+                ${total}
+                </td>
+              <td id="grade-${i}">
+                ${grade}
+                </td>
+            </tr>
+          `;
+          $("#table-body").append(html);
+        }
+
+        $(".midterm").on("click", function (){
+          editScore($(this), "midterm");
+        });
+
+        $(".final").on("click", function (){
+          editScore($(this), "final");
+        });
+
+        function editScore(cell, field) {
+          const oldValue = cell.text().trim();
+          cell.html('<input class="edit-box" type="number" min="0" max="50" value="' + oldValue + '" />');
+         
+          const input = cell.find("input");
+          input.focus(); 
+          input.on("keydown", function(event){
+            if(event.key === "Escape"){
+              cell.text(oldValue);
+              return;
+            }
+            if(event.key === "Enter"){
+              let value = parseInt(input.val());
+              if(isNaN(value) || value < 0 || value > 50){
+                alert("Score must be between 0 and 50.");
+                return;
+              }
+              const index = cell.attr("id").split("-")[1];
+              students[index][field] = value;
+              cell.text(value);
+              updateRow(index);
+            }
+          })
+
+        }
+
+        function updateRow(index){
+          const data = students[index];
+          const total = data.midterm + data.final;
+          const grade = getGrade(total);
+          $("#total-" + index).text(total);
+          $("#grade-" + index).text(grade);
+        }
+
+        
+      });
+
+
+    </script>
+  </body>
+</html>
