@@ -1,0 +1,19 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>JQuery Student Score Editor</title>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="data.js"></script>
+<style>body{font-family:Arial}table{border-collapse:collapse;width:70%}th,td{border:1px solid #000;padding:6px}.score{cursor:pointer}input.score-input{width:60px}</style>
+</head><body>
+<table><thead><tr><th>ID</th><th>Name</th><th>Midterm</th><th>Final</th><th>Total</th><th>Grade</th></tr></thead><tbody id="table-body"></tbody></table>
+<script>
+$(function(){
+function grade(t){if(t>=80)return"A";if(t>=70)return"B";if(t>=60)return"C";if(t>=50)return"D";return"F";}
+function render(){$("#table-body").empty();students.forEach((s,i)=>{$("#table-body").append(`<tr data-index="${i}"><td>${s.id}</td><td>${s.name}</td><td class="score" data-field="midterm">${s.midterm}</td><td class="score" data-field="final">${s.final}</td><td class="total">${+s.midterm+ +s.final}</td><td class="grade">${grade(+s.midterm+ +s.final)}</td></tr>`);});}
+function upd(r,i){let s=students[i],t=+s.midterm+ +s.final;r.find(".total").text(t);r.find(".grade").text(grade(t));}
+render();
+$("#table-body").on("click",".score",function(){let td=$(this);if(td.find("input").length)return;let old=td.text();td.data("old",old).html(`<input class='score-input' type='number' min='0' max='50' value='${old}'>`);let inp=td.find("input").focus().select();
+inp.on("keydown",function(e){if(e.key==="Escape"){td.text(old);}if(e.key==="Enter"){let v=parseInt(inp.val());if(isNaN(v)||v<0||v>50){alert("Score must be 0-50");td.text(old);return;}let row=td.closest("tr"),idx=row.data("index"),f=td.data("field");students[idx][f]=v;td.text(v);upd(row,idx);}});
+inp.on("blur",function(){if(td.find("input").length)td.text(old);});
+});
+});
+</script></body></html>
